@@ -14,6 +14,7 @@ export const profile = {
       role: "Volunteer",
       year: "2025",
       location: "Bangalore",
+      link: "https://ethindia-villa.devfolio.co/",
       bullets: [
         "Oversaw daily operational tasks and hospitality for a curated residency of high-impact builders.",
         "Acted as a primary point of contact for technical requirements and community-building activities within the villa.",
@@ -24,6 +25,7 @@ export const profile = {
       role: "Volunteer",
       year: "2025",
       location: "Bangalore",
+      link: "https://blocktrain.devfolio.co/",
       bullets: [
         "Supported the execution of blockchain education initiatives and regional networking sessions.",
         "Handled front-of-house operations, ensuring seamless communication between organizers and attendees.",
@@ -34,6 +36,7 @@ export const profile = {
       role: "Volunteer",
       year: "2025",
       location: "Bangalore",
+      link: "https://warpspeed2025.devfolio.co/",
       bullets: [
         "Coordinated track-specific operations and provided on-ground support for hackers and mentors.",
         "Facilitated smooth transitions between technical workshops and project submission deadlines.",
@@ -44,6 +47,7 @@ export const profile = {
       role: "Volunteer",
       year: "2024",
       location: "Bangalore",
+      link: "https://ethindia2024.devfolio.co/",
       bullets: [
         "Managed logistics and attendee flow for one of the world's largest Ethereum hackathons.",
         "Assisted developers with venue resources and streamlined the registration process for thousands of participants.",

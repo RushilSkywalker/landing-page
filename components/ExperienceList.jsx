@@ -11,10 +11,19 @@ export function ExperienceList({ items }) {
           <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between">
             <div>
               <h3 className="font-medium tracking-tight">
-                {item.event}{" "}
-                <span className="text-zinc-400">
-                  · {item.role}
-                </span>
+                {item.link ? (
+                  <a
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-zinc-100 hover:text-accent"
+                  >
+                    {item.event}
+                  </a>
+                ) : (
+                  item.event
+                )}{" "}
+                <span className="text-zinc-400">· {item.role}</span>
               </h3>
               {item.location ? (
                 <p className="text-sm text-zinc-400">
