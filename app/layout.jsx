@@ -18,7 +18,7 @@ const cardo = Cardo({
 });
 
 export const metadata = {
-  title: "Rushil — Portfolio",
+  title: "Rushil Raj Portfolio",
   description: "Rushil's personal landing page as a student and developer.",
 };
 
