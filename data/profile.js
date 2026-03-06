@@ -63,11 +63,11 @@ export const profile = {
       links: [
         {
           label: "GitHub",
-          href: "https://github.com/yourname/your-portfolio-repo",
+          href: "https://github.com/RushilSkywalker/landing-page",
         },
         {
           label: "Live",
-          href: "https://your-portfolio-url.com",
+          href: "https://rushilraj.vercel.app",
         },
       ],
     },
