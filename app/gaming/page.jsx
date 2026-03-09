@@ -88,9 +88,23 @@ const multiplayerPlaceholders = [
 ];
 
 const achievementsPlaceholders = [
-  "Add achievement/rank #1",
-  "Add achievement/rank #2",
-  "Add achievement/rank #3",
+  {
+    rank: 1,
+    name: "Hitting Immortal on Valorant",
+    notes: "Speaks for itself - I was among the top 20k players worldwide.",
+  },
+  {
+    rank: 2,
+    name: "Completing the Batman Trilogy 100% in one week",
+    notes:
+      "Post-exam week break: I just marathon'd all three games to 100% without a break (I hate you Riddler).",
+  },
+  {
+    rank: 3,
+    name: "Completing Elden Ring (lol)",
+    notes:
+      "Might not seem like much, but I suck at soulslikes, so completing this was HUGE.",
+  },
 ];
 
 const lookingForwardPlaceholders = [
@@ -136,16 +150,42 @@ const lookingForwardPlaceholders = [
   },
 ];
 
-function GameList({ items }) {
+const currentlyPlayingPlaceholders = [
+  {
+    name: "Hollow Knight: Silksong",
+    logo: "/games/hollow-knight-silksong.png",
+    link: "https://www.igdb.com/games/hollow-knight-silksong",
+    notes:
+      "Being a continuation of one of my favorite games, it does not disappoint. I am looking forward to finishing it soon.",
+  },
+  {
+    name: "Bloons TD 6",
+    logo: "/games/bloons-td-6.png",
+    link: "https://www.igdb.com/games/bloons-td-6",
+    notes:
+      "One of my guilty pleasures - a simple tower defense game about monkeys and balloons.",
+  },
+  {
+    name: "Cuphead",
+    logo: "/games/cuphead.png",
+    link: "https://www.igdb.com/games/cuphead",
+    notes:
+      "An all-time classic platformer that I currently cannot get enough of (I do have a skill issue).",
+  },
+];
+
+function GameList({ items, showRank = true }) {
   return (
     <ul className="mt-4 space-y-3 text-zinc-300">
       {items.map((item) => (
-        <li key={`${item.rank}-${item.name}`} className="rounded-xl border border-white/10 p-3">
+        <li key={`${item.rank ?? "na"}-${item.name}`} className="rounded-xl border border-white/10 p-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <p className="text-xs uppercase tracking-wide text-zinc-400">
-                #{item.rank}
-              </p>
+              {showRank ? (
+                <p className="text-xs uppercase tracking-wide text-zinc-400">
+                  #{item.rank}
+                </p>
+              ) : null}
               <h4 className="mt-1 font-semibold text-zinc-100">
                 {item.link ? (
                   <a
@@ -216,12 +256,22 @@ export default function GamingPage() {
           </div>
         </Section>
 
+        <Section id="currently-playing" title="Currently Playing">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+            <GameList items={currentlyPlayingPlaceholders} showRank={false} />
+          </div>
+        </Section>
+
         <Section id="achievements" title="Achievements">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
             <ul className="space-y-2 text-zinc-300">
               {achievementsPlaceholders.map((item) => (
-                <li key={item} className="rounded-lg border border-white/10 px-3 py-2">
-                  {item}
+                <li key={item.name} className="rounded-lg border border-white/10 px-3 py-2">
+                  <p className="text-xs uppercase tracking-wide text-zinc-400">
+                    #{item.rank}
+                  </p>
+                  <p className="mt-1 text-sm text-zinc-100">{item.name}</p>
+                  <p className="mt-2 text-sm text-zinc-300">{item.notes}</p>
                 </li>
               ))}
             </ul>
