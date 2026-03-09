@@ -226,8 +226,7 @@ export default function GamingPage() {
               Gaming
             </h1>
             <p className="mt-4 text-zinc-300">
-              A dedicated page for games I play, milestones I hit, and titles I
-              am excited to jump into next.
+              The only environment where I can just reload a previous save after breaking everything.
             </p>
           </div>
         </section>
