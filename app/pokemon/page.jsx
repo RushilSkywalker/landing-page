@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Section } from "@/components/Section";
 
@@ -17,19 +17,19 @@ const favouritePokemon = {
       name: "Groudon",
       id: 0,
       sprite: "/pokemon-placeholder.png",
-      notes: "Add a short note about why Groudon is here.",
+      notes: "The obviously better Legendary(The ocean sucks).",
     },
     {
       name: "Alakazam",
       id: 0,
       sprite: "/pokemon-placeholder.png",
-      notes: "Add a short note about why Alakazam is here.",
+      notes: "When i first started playing Pokémon, I fell in love with the design, and it has always stuck with me.",
     },
     {
       name: "Infernape",
       id: 0,
       sprite: "/pokemon-placeholder.png",
-      notes: "Add a short note about why Infernape is here.",
+      notes: "Ash's Infernape was HIM and there is no debate.",
     },
   ],
 };
@@ -167,7 +167,13 @@ export default function PokemonPage() {
           names.map(async (name) => {
             try {
               const data = await fetchPokemonStats(name);
-              return [name, data.sprite];
+              return [
+                name,
+                {
+                  sprite: data.sprite,
+                  id: data.id,
+                },
+              ];
             } catch {
               return [name, null];
             }
@@ -175,8 +181,8 @@ export default function PokemonPage() {
         );
 
         const map = {};
-        entries.forEach(([name, sprite]) => {
-          if (sprite) map[name] = sprite;
+        entries.forEach(([name, details]) => {
+          if (details) map[name] = details;
         });
 
         setFavouriteSprites(map);
@@ -188,6 +194,15 @@ export default function PokemonPage() {
     loadFavouriteSprites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    if (battleData && typeof window !== "undefined") {
+      window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [battleData]);
   return (
     <div className="flex min-h-dvh flex-col">
       <Navbar />
@@ -199,8 +214,7 @@ export default function PokemonPage() {
               Pokémon
             </h1>
             <p className="mt-4 text-zinc-300">
-              A space to show off my favourite Pokémon and pit them against
-              yours in a simple 1v1 matchup using data from the PokéAPI.
+              One of my earliest interests, and a little API spice to battle my favourites against yours.
             </p>
           </div>
         </section>
@@ -210,7 +224,7 @@ export default function PokemonPage() {
             <article className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-6 text-center backdrop-blur-sm">
               <img
                 src={
-                  favouriteSprites[favouritePokemon.main.name] ||
+                  favouriteSprites[favouritePokemon.main.name]?.sprite ||
                   favouritePokemon.main.sprite
                 }
                 alt={favouritePokemon.main.name}
@@ -238,7 +252,7 @@ export default function PokemonPage() {
                     className="flex flex-col items-center rounded-2xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm"
                   >
                     <img
-                      src={favouriteSprites[p.name] || p.sprite}
+                      src={favouriteSprites[p.name]?.sprite || p.sprite}
                       alt={p.name}
                       className="mb-3 h-20 w-20 rounded-full border border-white/10 bg-white/5 object-contain"
                     />
@@ -246,7 +260,7 @@ export default function PokemonPage() {
                       {p.name}
                     </h5>
                     <p className="mt-2 text-[10px] uppercase tracking-wide text-zinc-500">
-                      Pokédex ID: {p.id || "TBD"}
+                      Pokédex ID: {favouriteSprites[p.name]?.id || p.id || "TBD"}
                     </p>
                     <p className="mt-2 text-xs text-zinc-300">{p.notes}</p>
                   </article>
@@ -395,6 +409,15 @@ export default function PokemonPage() {
             )}
           </div>
         </Section>
+
+        <div className="mt-10 mb-8 flex justify-center">
+          <a
+            href="/pokemon-battle"
+            className="rounded-full border border-accent/60 bg-accent/10 px-4 py-2 text-sm font-medium text-accent hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+          >
+            Pokémon Battle!
+          </a>
+        </div>
 
       </main>
     </div>
