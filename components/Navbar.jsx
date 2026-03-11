@@ -1,5 +1,6 @@
 const pages = [
   { href: "/gaming", label: "Gaming" },
+  { href: "/pokemon", label: "Pokémon" },
 ];
 
 export function Navbar() {
