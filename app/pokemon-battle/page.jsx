@@ -13,7 +13,10 @@ function formatPokemonName(name) {
 }
 
 async function fetchPokemonStats(name) {
-  const normalized = name.trim().toLowerCase();
+  const normalized = name
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, "-");
   if (!normalized) {
     throw new Error("Please enter a Pokémon name.");
   }
