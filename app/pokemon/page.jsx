@@ -43,6 +43,15 @@ export default function PokemonPage() {
   const [favouriteSprites, setFavouriteSprites] = useState({});
   const [timeoutId, setTimeoutId] = useState(null);
 
+  const STAT_LABELS = {
+    hp: "HP",
+    attack: "Attack",
+    defense: "Defense",
+    "special-attack": "Sp. Attack",
+    "special-defense": "Sp. Defense",
+    speed: "Speed",
+  };
+
   function formatPokemonName(name) {
     if (!name) return "";
     return name
@@ -79,6 +88,45 @@ export default function PokemonPage() {
     };
   }
 
+  // Very simplified offensive type effectiveness.
+  // This is intentionally lightweight and just boosts obvious advantages.
+  const TYPE_ADVANTAGE = {
+    fire: ["grass", "bug", "ice", "steel"],
+    water: ["fire", "ground", "rock"],
+    grass: ["water", "ground", "rock"],
+    electric: ["water", "flying"],
+    ground: ["fire", "electric", "poison", "rock", "steel"],
+    rock: ["fire", "ice", "flying", "bug"],
+    fighting: ["normal", "rock", "ice", "dark", "steel"],
+    psychic: ["fighting", "poison"],
+    dark: ["psychic", "ghost"],
+    ghost: ["psychic", "ghost"],
+    ice: ["grass", "ground", "flying", "dragon"],
+    dragon: ["dragon"],
+    fairy: ["dragon", "fighting", "dark"],
+  };
+
+  function getTypeMultiplier(attackerTypes, defenderTypes) {
+    if (!attackerTypes || !defenderTypes) return 1;
+
+    let multiplier = 1;
+
+    attackerTypes.forEach((atk) => {
+      const strongAgainst = TYPE_ADVANTAGE[atk];
+      if (!strongAgainst) return;
+
+      defenderTypes.forEach((def) => {
+        if (strongAgainst.includes(def)) {
+          multiplier *= 1.25; // small boost for each favourable matchup
+        }
+      });
+    });
+
+    // Clamp so it never gets too extreme
+    if (multiplier > 1.75) multiplier = 1.75;
+    return multiplier;
+  }
+
   function calculateBattleScore(stats) {
     // Simple weighted sum: favor offensive stats slightly.
     const hp = stats["hp"] || 0;
@@ -113,8 +161,14 @@ export default function PokemonPage() {
         fetchPokemonStats(userPokemon),
       ]);
 
-      const myScore = calculateBattleScore(mine.stats);
-      const theirScore = calculateBattleScore(theirs.stats);
+      const myBaseScore = calculateBattleScore(mine.stats);
+      const theirBaseScore = calculateBattleScore(theirs.stats);
+
+      const myTypeMultiplier = getTypeMultiplier(mine.types, theirs.types);
+      const theirTypeMultiplier = getTypeMultiplier(theirs.types, mine.types);
+
+      const myScore = myBaseScore * myTypeMultiplier;
+      const theirScore = theirBaseScore * theirTypeMultiplier;
 
       let title;
       let explanation;
@@ -335,7 +389,9 @@ export default function PokemonPage() {
                       {["hp", "attack", "defense", "special-attack", "special-defense", "speed"].map(
                         (key) => (
                           <div key={key} className="flex items-center justify-between gap-2">
-                            <dt className="capitalize text-zinc-400">{key.replace("-", " ")}</dt>
+                            <dt className="text-zinc-400">
+                              {STAT_LABELS[key] || key.replace("-", " ")}
+                            </dt>
                             <dd className="font-semibold">
                               {battleData.mine.stats[key] ?? "—"}
                             </dd>
@@ -375,7 +431,9 @@ export default function PokemonPage() {
                       {["hp", "attack", "defense", "special-attack", "special-defense", "speed"].map(
                         (key) => (
                           <div key={key} className="flex items-center justify-between gap-2">
-                            <dt className="capitalize text-zinc-400">{key.replace("-", " ")}</dt>
+                            <dt className="text-zinc-400">
+                              {STAT_LABELS[key] || key.replace("-", " ")}
+                            </dt>
                             <dd className="font-semibold">
                               {battleData.theirs.stats[key] ?? "—"}
                             </dd>

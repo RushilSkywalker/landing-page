@@ -40,6 +40,53 @@ async function fetchPokemonStats(name) {
   };
 }
 
+const STAT_LABELS = {
+  hp: "HP",
+  attack: "Attack",
+  defense: "Defense",
+  "special-attack": "Sp. Attack",
+  "special-defense": "Sp. Defense",
+  speed: "Speed",
+};
+
+// Very simplified offensive type effectiveness.
+// This is intentionally lightweight and just boosts obvious advantages.
+const TYPE_ADVANTAGE = {
+  fire: ["grass", "bug", "ice", "steel"],
+  water: ["fire", "ground", "rock"],
+  grass: ["water", "ground", "rock"],
+  electric: ["water", "flying"],
+  ground: ["fire", "electric", "poison", "rock", "steel"],
+  rock: ["fire", "ice", "flying", "bug"],
+  fighting: ["normal", "rock", "ice", "dark", "steel"],
+  psychic: ["fighting", "poison"],
+  dark: ["psychic", "ghost"],
+  ghost: ["psychic", "ghost"],
+  ice: ["grass", "ground", "flying", "dragon"],
+  dragon: ["dragon"],
+  fairy: ["dragon", "fighting", "dark"],
+};
+
+function getTypeMultiplier(attackerTypes, defenderTypes) {
+  if (!attackerTypes || !defenderTypes) return 1;
+
+  let multiplier = 1;
+
+  attackerTypes.forEach((atk) => {
+    const strongAgainst = TYPE_ADVANTAGE[atk];
+    if (!strongAgainst) return;
+
+    defenderTypes.forEach((def) => {
+      if (strongAgainst.includes(def)) {
+        multiplier *= 1.25; // small boost for each favourable matchup
+      }
+    });
+  });
+
+  if (multiplier > 1.75) multiplier = 1.75;
+  return multiplier;
+}
+
 function calculateBattleScore(stats) {
   const hp = stats["hp"] || 0;
   const atk = stats["attack"] || 0;
@@ -82,8 +129,14 @@ export default function PokemonBattlePage() {
         fetchPokemonStats(secondPokemon),
       ]);
 
-      const firstScore = calculateBattleScore(first.stats);
-      const secondScore = calculateBattleScore(second.stats);
+      const firstBase = calculateBattleScore(first.stats);
+      const secondBase = calculateBattleScore(second.stats);
+
+      const firstMult = getTypeMultiplier(first.types, second.types);
+      const secondMult = getTypeMultiplier(second.types, first.types);
+
+      const firstScore = firstBase * firstMult;
+      const secondScore = secondBase * secondMult;
 
       const firstName = formatPokemonName(first.name);
       const secondName = formatPokemonName(second.name);
@@ -220,7 +273,9 @@ export default function PokemonBattlePage() {
                         {["hp", "attack", "defense", "special-attack", "special-defense", "speed"].map(
                           (key) => (
                             <div key={key} className="flex items-center justify-between gap-2">
-                              <dt className="capitalize text-zinc-400">{key.replace("-", " ")}</dt>
+                              <dt className="text-zinc-400">
+                                {STAT_LABELS[key] || key.replace("-", " ")}
+                              </dt>
                               <dd className="font-semibold">
                                 {battleData.first.stats[key] ?? "—"}
                               </dd>
@@ -260,7 +315,9 @@ export default function PokemonBattlePage() {
                         {["hp", "attack", "defense", "special-attack", "special-defense", "speed"].map(
                           (key) => (
                             <div key={key} className="flex items-center justify-between gap-2">
-                              <dt className="capitalize text-zinc-400">{key.replace("-", " ")}</dt>
+                              <dt className="text-zinc-400">
+                                {STAT_LABELS[key] || key.replace("-", " ")}
+                              </dt>
                               <dd className="font-semibold">
                                 {battleData.second.stats[key] ?? "—"}
                               </dd>
