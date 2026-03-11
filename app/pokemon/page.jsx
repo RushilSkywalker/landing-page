@@ -35,7 +35,21 @@ const favouritePokemon = {
 };
 
 export default function PokemonPage() {
+  const [userPokemon, setUserPokemon] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [battleData, setBattleData] = useState(null);
+  const [showOutcome, setShowOutcome] = useState(false);
+  const [error, setError] = useState(null);
   const [favouriteSprites, setFavouriteSprites] = useState({});
+  const [timeoutId, setTimeoutId] = useState(null);
+
+  function formatPokemonName(name) {
+    if (!name) return "";
+    return name
+      .split(/[-\s]+/)
+      .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join(" ");
+  }
 
   async function fetchPokemonStats(name) {
     const normalized = name.trim().toLowerCase();
@@ -54,13 +68,92 @@ export default function PokemonPage() {
       stats[s.stat.name] = s.base_stat;
     });
 
+    const types = data.types.map((t) => t.type.name);
+
     return {
       name: data.name,
       id: data.id,
       sprite: data.sprites.other?.["official-artwork"]?.front_default || data.sprites.front_default,
       stats,
+      types,
     };
   }
+
+  function calculateBattleScore(stats) {
+    // Simple weighted sum: favor offensive stats slightly.
+    const hp = stats["hp"] || 0;
+    const atk = stats["attack"] || 0;
+    const def = stats["defense"] || 0;
+    const spAtk = stats["special-attack"] || 0;
+    const spDef = stats["special-defense"] || 0;
+    const speed = stats["speed"] || 0;
+
+    const offense = atk * 1.1 + spAtk * 1.1;
+    const defense = def * 0.9 + spDef * 0.9;
+
+    return hp * 0.8 + offense + defense + speed * 0.7;
+  }
+
+  async function handleCompare(e) {
+    e.preventDefault();
+    setError(null);
+    setBattleData(null);
+    setShowOutcome(false);
+
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+      setTimeoutId(null);
+    }
+
+    setLoading(true);
+
+    try {
+      const [mine, theirs] = await Promise.all([
+        fetchPokemonStats(favouritePokemon.main.name),
+        fetchPokemonStats(userPokemon),
+      ]);
+
+      const myScore = calculateBattleScore(mine.stats);
+      const theirScore = calculateBattleScore(theirs.stats);
+
+      let title;
+      let explanation;
+      const myName = formatPokemonName(mine.name);
+      const theirName = formatPokemonName(theirs.name);
+
+      if (myScore > theirScore) {
+        title = `${myName.toUpperCase()} wins!`;
+        explanation = `Never doubted my King Typhlosion, of course ${theirName} lost.`;
+      } else if (theirScore > myScore) {
+        title = `${theirName.toUpperCase()} wins!`;
+        explanation =
+          "Statistically Typhlosion might have lost, but in my heart I know he wins them all.";
+      } else {
+        title = "It's a draw!";
+        explanation = `${myName} and ${theirName} are evenly matched with very similar overall stats.`;
+      }
+
+      setBattleData({ title, explanation, mine, theirs, myScore, theirScore });
+
+      const id = setTimeout(() => {
+        setShowOutcome(true);
+        setTimeoutId(null);
+      }, 3000);
+      setTimeoutId(id);
+    } catch (err) {
+      setError(err.message || "Something went wrong while fetching Pokémon data.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [timeoutId]);
 
   useEffect(() => {
     async function loadFavouriteSprites() {
@@ -162,6 +255,147 @@ export default function PokemonPage() {
             </div>
           </div>
         </Section>
+
+        <Section id="user-input" title="Your Favourite Pokémon">
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">
+            <p className="text-sm text-zinc-300">
+              Enter the name of your favourite Pokémon and see how they fare
+              against the GOAT Typhlosion.
+            </p>
+            <form
+              className="mt-4 flex flex-col gap-3 sm:flex-row"
+              onSubmit={handleCompare}
+            >
+              <input
+                type="text"
+                value={userPokemon}
+                onChange={(e) => setUserPokemon(e.target.value)}
+                placeholder="e.g. Garchomp"
+                className="flex-1 rounded-md border border-white/10 bg-black/30 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+              />
+              <button
+                type="submit"
+                className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-black hover:opacity-90 disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                disabled={loading}
+              >
+                {loading ? "Fighting..." : "Fight!"}
+              </button>
+            </form>
+
+            {error && (
+              <p className="mt-3 text-sm text-red-400">
+                {error}
+              </p>
+            )}
+
+            {battleData && (
+              <div className="mt-4 space-y-4">
+                <div className="rounded-xl border border-white/10 bg-black/30 p-4 text-sm text-zinc-200">
+                  <div className="mt-1 mb-4 flex items-center justify-center text-xl font-(--font-cardo) text-zinc-300">
+                    Battle Preview
+                  </div>
+                  <div className="mt-1 flex flex-col items-stretch gap-4 sm:flex-row">
+                  <article className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
+                    <p className="text-xs uppercase tracking-wide text-zinc-400">
+                      The GOAT
+                    </p>
+                    <img
+                      src={battleData.mine.sprite}
+                      alt={battleData.mine.name}
+                      className="mx-auto my-2 h-20 w-20 rounded-full border border-white/10 bg-black object-contain"
+                    />
+                    <h3 className="font-(--font-cardo) text-lg capitalize text-zinc-100">
+                      {formatPokemonName(battleData.mine.name)}
+                    </h3>
+                    <div className="mt-2 flex flex-wrap justify-center gap-1">
+                      {battleData.mine.types.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full bg-black/40 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zinc-200"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-200">
+                      {["hp", "attack", "defense", "special-attack", "special-defense", "speed"].map(
+                        (key) => (
+                          <div key={key} className="flex items-center justify-between gap-2">
+                            <dt className="capitalize text-zinc-400">{key.replace("-", " ")}</dt>
+                            <dd className="font-semibold">
+                              {battleData.mine.stats[key] ?? "—"}
+                            </dd>
+                          </div>
+                        ),
+                      )}
+                    </dl>
+                  </article>
+
+                  <div className="flex items-center justify-center text-xl font-(--font-cardo) text-zinc-300">
+                    VS
+                  </div>
+
+                  <article className="flex-1 rounded-2xl border border-white/10 bg-white/5 p-4 text-center">
+                    <p className="text-xs uppercase tracking-wide text-zinc-400">
+                      Your pick
+                    </p>
+                    <img
+                      src={battleData.theirs.sprite}
+                      alt={battleData.theirs.name}
+                      className="mx-auto my-2 h-20 w-20 rounded-full border border-white/10 bg-black object-contain"
+                    />
+                    <h3 className="font-(--font-cardo) text-lg capitalize text-zinc-100">
+                      {formatPokemonName(battleData.theirs.name)}
+                    </h3>
+                    <div className="mt-2 flex flex-wrap justify-center gap-1">
+                      {battleData.theirs.types.map((t) => (
+                        <span
+                          key={t}
+                          className="rounded-full bg-black/40 px-2 py-0.5 text-[10px] uppercase tracking-wide text-zinc-200"
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                    <dl className="mt-3 grid grid-cols-2 gap-2 text-xs text-zinc-200">
+                      {["hp", "attack", "defense", "special-attack", "special-defense", "speed"].map(
+                        (key) => (
+                          <div key={key} className="flex items-center justify-between gap-2">
+                            <dt className="capitalize text-zinc-400">{key.replace("-", " ")}</dt>
+                            <dd className="font-semibold">
+                              {battleData.theirs.stats[key] ?? "—"}
+                            </dd>
+                          </div>
+                        ),
+                      )}
+                    </dl>
+                  </article>
+                  </div>
+                </div>
+
+                {!showOutcome && (
+                  <div className="rounded-xl border border-dashed border-white/20 bg-black/40 p-4 text-center text-sm text-zinc-300">
+                    Calculating winner…
+                  </div>
+                )}
+
+                {showOutcome && (
+                  <div className="rounded-xl border border-accent/70 bg-accent/10 p-4 text-sm text-zinc-200">
+                    <p className="font-semibold text-center text-base text-accent">
+                      {battleData.title}
+                    </p>
+                    <p className="mt-2 text-center text-zinc-200">{battleData.explanation}</p>
+                    <p className="mt-3 text-center text-[10px] text-zinc-500">
+                      This is just a fun approximation based on base stats (HP, Attack, Defense,
+                      Special Attack, Special Defense, Speed) from the PokéAPI.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </Section>
+
       </main>
     </div>
   );
