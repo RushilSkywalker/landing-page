@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { HeroScrollArrow } from "@/components/HeroScrollArrow";
 import { Navbar } from "@/components/Navbar";
 import { Section } from "@/components/Section";
 
@@ -194,7 +195,10 @@ export default function PokemonBattlePage() {
       <Navbar />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6">
-        <section className="flex min-h-[calc(100vh-56px)] items-center justify-center py-10 sm:py-12">
+        <section
+          id="pokemon-battle-hero"
+          className="flex min-h-[calc(100vh-56px)] items-center justify-center py-10 sm:py-12"
+        >
           <div className="max-w-3xl text-center">
             <h1 className="font-(--font-cardo) text-4xl tracking-tight sm:text-5xl">
               Pokémon Battle Arena
@@ -204,6 +208,7 @@ export default function PokemonBattlePage() {
             </p>
           </div>
         </section>
+        <HeroScrollArrow heroId="pokemon-battle-hero" targetId="battle" />
 
         <Section id="battle" title="Choose Your Fighters">
           <div className="rounded-2xl border border-white/10 bg-white/5 p-5 backdrop-blur-sm">

@@ -1,5 +1,6 @@
 import { Navbar } from "@/components/Navbar";
 import { Section } from "@/components/Section";
+import { HeroScrollArrow } from "@/components/HeroScrollArrow";
 
 const storyModePlaceholders = [
   {
@@ -220,7 +221,10 @@ export default function GamingPage() {
       <Navbar />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6">
-        <section className="flex min-h-[calc(100vh-56px)] items-center justify-center py-10 sm:py-12">
+        <section
+          id="gaming-hero"
+          className="flex min-h-[calc(100vh-56px)] items-center justify-center py-10 sm:py-12"
+        >
           <div className="max-w-3xl text-center">
             <h1 className="font-(--font-cardo) text-4xl tracking-tight sm:text-5xl">
               Gaming
@@ -230,6 +234,7 @@ export default function GamingPage() {
             </p>
           </div>
         </section>
+        <HeroScrollArrow heroId="gaming-hero" targetId="favorite-games" />
 
         <Section id="favorite-games" title="Favorite Games">
           <div className="grid gap-4 sm:grid-cols-2">

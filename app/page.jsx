@@ -2,6 +2,7 @@ import { profile } from "@/data/profile";
 import { Contact } from "@/components/Contact";
 import { ExperienceList } from "@/components/ExperienceList";
 import { Hero } from "@/components/Hero";
+import { HeroScrollArrow } from "@/components/HeroScrollArrow";
 import { Navbar } from "@/components/Navbar";
 import { ProjectsGrid } from "@/components/ProjectsGrid";
 import { Section } from "@/components/Section";
@@ -12,6 +13,7 @@ export default function Home() {
       <Navbar />
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6">
         <Hero profile={profile} />
+        <HeroScrollArrow heroId="top" targetId="about" />
 
         <Section id="about" title="About me">
           <div className="space-y-3 text-sm leading-7 text-zinc-700 dark:text-zinc-300">

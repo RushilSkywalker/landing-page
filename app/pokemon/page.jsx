@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { HeroScrollArrow } from "@/components/HeroScrollArrow";
 import { Navbar } from "@/components/Navbar";
 import { Section } from "@/components/Section";
 
@@ -265,7 +266,10 @@ export default function PokemonPage() {
       <Navbar />
 
       <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6">
-        <section className="flex min-h-[calc(100vh-56px)] items-center justify-center py-10 sm:py-12">
+        <section
+          id="pokemon-hero"
+          className="flex min-h-[calc(100vh-56px)] items-center justify-center py-10 sm:py-12"
+        >
           <div className="max-w-3xl text-center">
             <h1 className="font-(--font-cardo) text-4xl tracking-tight sm:text-5xl">
               Pokémon
@@ -275,6 +279,7 @@ export default function PokemonPage() {
             </p>
           </div>
         </section>
+        <HeroScrollArrow heroId="pokemon-hero" targetId="favourites" />
 
         <Section id="favourites" title="My Favourite Pokémon">
           <div className="flex flex-col gap-8">
@@ -471,10 +476,13 @@ export default function PokemonPage() {
           </div>
         </Section>
 
-        <div className="mt-10 mb-8 flex justify-center">
+        <div className="mt-10 mb-16 flex flex-col items-center gap-3">
+          <p className="text-base text-zinc-300 sm:text-lg">
+            Try your own battle with any two Pokémon.
+          </p>
           <a
             href="/pokemon-battle"
-            className="rounded-full border border-accent/60 bg-accent/10 px-4 py-2 text-sm font-medium text-accent hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+            className="rounded-full border border-accent/60 bg-accent/10 px-6 py-3 text-base font-medium text-accent hover:bg-accent/20 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 sm:text-lg"
           >
             Pokémon Battle!
           </a>
