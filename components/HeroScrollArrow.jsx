@@ -58,7 +58,7 @@ export function HeroScrollArrow({ heroId, targetId }) {
       <svg
         aria-hidden="true"
         viewBox="0 0 24 24"
-        className="h-6 w-6"
+        className={`h-6 w-6 ${showArrow ? "micro-bounce" : ""}`}
         fill="none"
         stroke="currentColor"
         strokeWidth="1.8"
