@@ -3,39 +3,42 @@
 import { useEffect, useState } from "react";
 
 export function HeroScrollArrow({ heroId, targetId }) {
+  const [delayDone, setDelayDone] = useState(false);
   const [showArrow, setShowArrow] = useState(false);
-  const [heroInView, setHeroInView] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDelayDone(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const hero = document.getElementById(heroId);
     if (!hero) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setHeroInView(entry.isIntersecting);
-      },
-      { threshold: 0.65 },
-    );
+    function updateArrowVisibility() {
+      const rect = hero.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const visiblePx =
+        Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0);
+      const visibleArea = Math.max(0, visiblePx);
+      const visibleRatio = visibleArea / Math.min(rect.height, viewportHeight);
+      const inHeroRange =
+        visibleRatio > 0.35 &&
+        rect.top < viewportHeight * 0.55 &&
+        rect.bottom > viewportHeight * 0.45;
 
-    observer.observe(hero);
-    return () => observer.disconnect();
-  }, [heroId]);
-
-  useEffect(() => {
-    let timer;
-
-    if (heroInView) {
-      timer = setTimeout(() => {
-        setShowArrow(true);
-      }, 2000);
-    } else {
-      setShowArrow(false);
+      setShowArrow(delayDone && inHeroRange);
     }
 
+    updateArrowVisibility();
+    window.addEventListener("scroll", updateArrowVisibility, { passive: true });
+    window.addEventListener("resize", updateArrowVisibility);
+
     return () => {
-      if (timer) clearTimeout(timer);
+      window.removeEventListener("scroll", updateArrowVisibility);
+      window.removeEventListener("resize", updateArrowVisibility);
     };
-  }, [heroInView]);
+  }, [heroId, delayDone]);
 
   function handleScrollToContent() {
     const target = document.getElementById(targetId);
@@ -58,7 +61,7 @@ export function HeroScrollArrow({ heroId, targetId }) {
       <svg
         aria-hidden="true"
         viewBox="0 0 24 24"
-        className={`h-6 w-6 ${showArrow ? "micro-bounce" : ""}`}
+        className={`h-6 w-6 ${showArrow ? "animate-bounce" : ""}`}
         fill="none"
         stroke="currentColor"
         strokeWidth="1.8"

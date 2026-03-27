@@ -10,6 +10,14 @@ export function Navbar() {
         </a>
         <nav aria-label="Primary">
           <ul className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-zinc-300">
+            <li>
+              <a
+                href="/blog"
+                className="rounded-md px-2 py-1 text-zinc-300 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+              >
+                DevLog
+              </a>
+            </li>
             <li className="relative">
               <details className="group">
                 <summary className="cursor-pointer list-none rounded-md px-2 py-1 text-zinc-300 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">

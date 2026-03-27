@@ -140,43 +140,24 @@ body::after {
   }
 }
 
-@keyframes micro-bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(5px);
-  }
-}
-
-.micro-bounce {
-  animation: micro-bounce 1.6s ease-in-out infinite;
-}
-
 @keyframes page-fade-in {
   0% {
     opacity: 0;
-    transform: translateY(6px);
   }
   100% {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .page-fade-in {
   animation: page-fade-in 280ms ease-out both;
+  will-change: opacity;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html::before,
   body::before,
   body::after {
-    animation: none;
-  }
-
-  .micro-bounce {
     animation: none;
   }
 
